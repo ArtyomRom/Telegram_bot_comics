@@ -1,46 +1,32 @@
 from dotenv import load_dotenv
-from comics_api import get_comics
-import asyncio
+from comics_api import get_comic
+from telegram import Bot
 import os
-import aiohttp
 import logging
 
 
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
-async def main():
+
+def send_photo(image_comic, comment, chat_id, token):
+    bot = Bot(token=token)
+    try:
+        bot.send_photo(chat_id=chat_id, photo=image_comic, caption=comment)
+        logger.info("✅ Фото отправлено успешно!")
+    except Exception as e:
+        logger.error(f"❌ Ошибка отправки фото: {e}")
+
+def main():
     load_dotenv()
-    token = os.getenv('TG_TOKEN')
-    chat_id = os.getenv('CHAT_ID')
-    waiting_period = 8
-    logging.info("🚀 Бот запущен!")
-    while True:
-        await asyncio.sleep(waiting_period)
-        comics = get_comics()
-        image_comics = comics['img']
-        comment = comics['alt']
-        await send_photo(image_comics, comment, chat_id, token)
-
-
-
-async def send_photo(url_picture, comment, chat_id, token):
-    url = f"https://api.telegram.org/bot{token}/sendPhoto"
-    data = {
-        "chat_id": chat_id,
-        "photo": url_picture,
-        "caption": comment
-    }
-
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=data) as response:
-            if response.status == 200:
-                logging.info("✅ Фото отправлено успешно!")
-            else:
-                logging.error(f"❌ Ошибка отправки фото: {response.status}")
-
+    token = os.environ['TG_TOKEN']
+    chat_id = os.environ['CHAT_ID']
+    logger.info("🚀 Бот запущен!")
+    comic = get_comic()
+    image_comic = comic['img']
+    comment = comic['alt']
+    send_photo(image_comic, comment, chat_id, token)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

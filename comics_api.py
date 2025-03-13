@@ -1,26 +1,20 @@
-import json
 import random
 import requests
 from config import API_URL
 
 
-def get_last_comics():
-    response = requests.get(API_URL)
-    response.raise_for_status()
-    response = response.json()
-    return response['num']
+def get_last_comic():
+    latest_comic = requests.get(API_URL)
+    latest_comic.raise_for_status()
+    latest_comic = latest_comic.json()
+    return latest_comic['num']
 
 
-def get_comics():
-    random_number = random.randint(0, get_last_comics())
+def get_comic():
+    random_number = random.randint(1, get_last_comic())
     url = f'https://xkcd.com/{random_number}/info.0.json'
-
-    response = requests.get(url)
-    response.raise_for_status()
-    data = response.json()
-
-
-    with open('comics_database.json', 'w') as file:
-        json.dump(data, file, indent=4)
-        return data
+    comic_book_information = requests.get(url)
+    comic_book_information.raise_for_status()
+    comic_book_information = comic_book_information.json()
+    return comic_book_information
 
