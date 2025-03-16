@@ -17,4 +17,3 @@ def get_comic():
     comic_book_information.raise_for_status()
     comic_book_information = comic_book_information.json()
     return comic_book_information
-
